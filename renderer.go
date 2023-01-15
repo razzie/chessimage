@@ -34,7 +34,7 @@ var pieceNames = map[string]string{
 
 const (
 	defaultBoardSize   = 512
-	defaultPieceRatio  = 0.8
+	defaultPieceRatio  = 0.9
 	fileSymbols        = "abcdefgh"
 	fileSymbolsReverse = "hgfedcba"
 	rankSymbols        = "12345678"
@@ -42,11 +42,11 @@ const (
 )
 
 var (
-	colorLight        = []int{239, 218, 183}
-	colorDark         = []int{180, 135, 102}
-	colorHighlight    = []int{205, 210, 122}
-	colorHighlightDim = []int{170, 160, 75}
-	colorCheck        = []int{227, 30, 32}
+	colorLight          = []int{240, 217, 181}
+	colorDark           = []int{181, 136, 99}
+	colorHighlightLight = []int{247, 193, 99}
+	colorHighlightDark  = []int{215, 149, 54}
+	colorCheck          = []int{255, 0, 0}
 )
 
 type drawSize struct {
@@ -152,19 +152,28 @@ func (r *Renderer) highlightCells(o Options) {
 		lastMoveToFile = r.lastMove.To.file()
 	}
 
+	moveFromHighlight := colorHighlightLight
+	if (lastMoveFromRank*8+lastMoveFromFile)%2 == 0 {
+		moveFromHighlight = colorHighlightDark
+	}
+	moveToHighlight := colorHighlightLight
+	if (lastMoveToRank*8+lastMoveToFile)%2 == 0 {
+		moveToHighlight = colorHighlightDark
+	}
+
 	gridSize := r.drawSize.gridSize
 	r.context.DrawRectangle(
 		float64(lastMoveFromFile*gridSize),
 		float64(lastMoveFromRank*gridSize),
 		float64(gridSize),
 		float64(gridSize))
-	r.context.SetRGB255(colorHighlight[0], colorHighlight[1], colorHighlight[2])
+	r.context.SetRGB255(moveFromHighlight[0], moveFromHighlight[1], moveFromHighlight[2])
 	r.context.Fill()
 	r.context.DrawRectangle(
 		float64(lastMoveToFile*gridSize),
 		float64(lastMoveToRank*gridSize),
 		float64(gridSize), float64(gridSize))
-	r.context.SetRGB255(colorHighlightDim[0], colorHighlightDim[1], colorHighlightDim[2])
+	r.context.SetRGB255(moveToHighlight[0], moveToHighlight[1], moveToHighlight[2])
 	r.context.Fill()
 }
 
