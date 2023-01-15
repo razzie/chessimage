@@ -9,9 +9,9 @@ import (
 	"log"
 	"os"
 
-	findfont "github.com/flopp/go-findfont"
 	"github.com/fogleman/gg"
 	"golang.org/x/image/draw"
+	"golang.org/x/image/font/basicfont"
 )
 
 //go:embed assets/*
@@ -202,13 +202,7 @@ func (r *Renderer) drawBoard(o Options) error {
 
 func (r *Renderer) drawRankFile(o Options) error {
 	var symbols string
-	fontPath, err := findfont.Find("arial.ttf")
-	if err != nil {
-		return err
-	}
-	if err := r.context.LoadFontFace(fontPath, 14); err != nil {
-		return err
-	}
+	r.context.SetFontFace(basicfont.Face7x13)
 
 	if o.Inverted {
 		symbols = fileSymbolsReverse
