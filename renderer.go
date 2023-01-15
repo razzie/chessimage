@@ -1,13 +1,21 @@
 package chessimage
 
 import (
+	"embed"
+	_ "embed"
 	"image"
+	"image/png"
+	"io/fs"
 	"log"
+	"os"
 
 	findfont "github.com/flopp/go-findfont"
 	"github.com/fogleman/gg"
 	"golang.org/x/image/draw"
 )
+
+//go:embed assets/*
+var assets embed.FS
 
 var pieceNames = map[string]string{
 	"b": "bd.png",
@@ -48,6 +56,7 @@ type drawSize struct {
 
 // Options holds all possible rendering options for customization
 type Options struct {
+	FileSystem fs.FS
 	AssetPath  string
 	Resizer    draw.Scaler
 	BoardSize  int
@@ -184,7 +193,7 @@ func (r *Renderer) drawCheckTile(o Options) {
 
 func (r *Renderer) drawBoard(o Options) error {
 	for _, position := range r.board {
-		if err := r.drawPiece(position, o.AssetPath, o.Resizer, o.Inverted); err != nil {
+		if err := r.drawPiece(position, o.FileSystem, o.AssetPath, o.Resizer, o.Inverted); err != nil {
 			return err
 		}
 	}
@@ -236,9 +245,9 @@ func (r *Renderer) drawRankFile(o Options) error {
 	return nil
 }
 
-func (r *Renderer) drawPiece(piece position, assetPath string, resizer draw.Scaler, inverted bool) error {
+func (r *Renderer) drawPiece(piece position, fs fs.FS, assetPath string, resizer draw.Scaler, inverted bool) error {
 	// Todo move this to runtime cache function
-	png, err := gg.LoadPNG(assetPath + pieceNames[string(piece.pieceSymbol)])
+	png, err := loadPNG(fs, assetPath+pieceNames[string(piece.pieceSymbol)])
 	if err != nil {
 		return err
 	}
@@ -277,4 +286,20 @@ func calcDrawSize(o Options) drawSize {
 		pieceSize:   int(pieceSize),
 		pieceOffset: int((gridSize - pieceSize) / 2),
 	}
+}
+
+func loadPNG(fs fs.FS, assetPath string) (image.Image, error) {
+	if fs == nil {
+		if len(assetPath) == 0 {
+			fs = assets
+		} else {
+			fs = os.DirFS(".")
+		}
+	}
+	file, err := fs.Open(assetPath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+	return png.Decode(file)
 }
