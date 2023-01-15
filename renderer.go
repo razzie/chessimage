@@ -152,11 +152,11 @@ func (r *Renderer) highlightCells(o Options) {
 	}
 
 	moveFromHighlight := colorHighlightLight
-	if (lastMoveFromRank*8+lastMoveFromFile)%2 == 0 {
+	if lastMoveFromRank%2 != lastMoveFromFile%2 {
 		moveFromHighlight = colorHighlightDark
 	}
 	moveToHighlight := colorHighlightLight
-	if (lastMoveToRank*8+lastMoveToFile)%2 == 0 {
+	if lastMoveToRank%2 != lastMoveToFile%2 {
 		moveToHighlight = colorHighlightDark
 	}
 
