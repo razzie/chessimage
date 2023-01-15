@@ -7,7 +7,6 @@ import (
 	"image/png"
 	"io/fs"
 	"log"
-	"os"
 
 	"github.com/fogleman/gg"
 	"golang.org/x/image/draw"
@@ -293,11 +292,8 @@ func calcDrawSize(o Options) drawSize {
 
 func loadPNG(fs fs.FS, assetPath string) (image.Image, error) {
 	if fs == nil {
-		if len(assetPath) == 0 {
-			fs = assets
-		} else {
-			fs = os.DirFS(".")
-		}
+		fs = assets
+		assetPath = "assets/" + assetPath
 	}
 	file, err := fs.Open(assetPath)
 	if err != nil {
